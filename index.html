@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>植物大战僵尸 - 在线游戏</title>
+    <title>HaiSnap 植物大战僵尸</title>
     <style>
         * {
             margin: 0;
@@ -12,80 +12,47 @@
         }
         
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-        
-        .container {
-            width: 95%;
-            max-width: 1200px;
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            overflow: hidden;
         }
         
         .game-container {
             position: relative;
-            width: 100%;
-            height: 600px;
-            border: 3px solid #fff;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            background: #f0f0f0;
+            width: 100vw;
+            height: 100vh;
         }
         
-        .game-iframe {
+        #gameFrame {
             width: 100%;
             height: 100%;
             border: none;
-            background: white;
+            background-color: #000;
         }
         
-        .loading-overlay {
+        .loading {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            z-index: 10;
-            transition: opacity 0.5s ease;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 18px;
+            z-index: 1000;
+            display: none;
         }
         
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
+        .loading.show {
+            display: block;
         }
         
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top: 5px solid white;
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+            margin: 0 auto 20px;
         }
         
         @keyframes spin {
@@ -93,302 +60,155 @@
             100% { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            font-size: 1.2em;
-            margin-bottom: 10px;
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff6b6b;
+            font-size: 16px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
         }
         
-        .loading-tips {
-            font-size: 0.9em;
-            opacity: 0.8;
-            max-width: 300px;
-            line-height: 1.4;
+        .error-message.show {
+            display: block;
         }
         
-        .controls {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid white;
-            border-radius: 25px;
+        .retry-btn {
+            background-color: #3498db;
             color: white;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 10px;
             cursor: pointer;
+            border-radius: 5px;
             font-size: 14px;
         }
         
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
+        .retry-btn:hover {
+            background-color: #2980b9;
         }
         
-        .status-indicator {
-            margin-top: 15px;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
-        }
-        
-        .status-loading {
-            background: rgba(255, 193, 7, 0.8);
-            color: #333;
-        }
-        
-        .status-success {
-            background: rgba(40, 167, 69, 0.8);
+        /* 全屏按钮 */
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
             color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 1001;
         }
         
-        .status-error {
-            background: rgba(220, 53, 69, 0.8);
-            color: white;
+        .fullscreen-btn:hover {
+            background-color: rgba(0, 0, 0, 0.9);
         }
         
-        .footer {
-            margin-top: 20px;
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-        
-        .responsive-note {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            font-size: 0.8em;
-            opacity: 0.9;
-        }
-        
+        /* 移动端优化 */
         @media (max-width: 768px) {
-            .container {
-                width: 98%;
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .game-container {
-                height: 400px;
-            }
-            
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .btn {
-                width: 200px;
+            .fullscreen-btn {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 11px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🌱 植物大战僵尸</h1>
-        
-        <div class="game-container">
-            <iframe 
-                id="gameIframe" 
-                class="game-iframe"
-                src="http://39.105.175.89/"
-                title="植物大战僵尸游戏"
-                frameborder="0"
-                allowfullscreen>
-            </iframe>
-            
-            <div id="loadingOverlay" class="loading-overlay">
-                <div class="loading-spinner"></div>
-                <div class="loading-text">正在加载游戏...</div>
-                <div class="loading-tips">
-                    首次加载可能需要几秒钟<br>
-                    请稍候，游戏即将开始
-                </div>
-            </div>
+    <div class="game-container">
+        <!-- 加载提示 -->
+        <div class="loading show" id="loadingMsg">
+            <div class="spinner"></div>
+            <div>正在加载 HaiSnap 植物大战僵尸...</div>
         </div>
         
-        <div class="controls">
-            <button class="btn" onclick="reloadGame()">🔄 重新加载</button>
-            <button class="btn" onclick="toggleFullscreen()">🔍 全屏模式</button>
-            <button class="btn" onclick="openOriginal()">🔗 原始链接</button>
-            <button class="btn" onclick="copyEmbedCode()">📋 复制代码</button>
+        <!-- 错误提示 -->
+        <div class="error-message" id="errorMsg">
+            <div>⚠️ 游戏加载失败</div>
+            <div>请检查网络连接或稍后重试</div>
+            <button class="retry-btn" onclick="reloadGame()">重新加载</button>
         </div>
         
-        <div id="statusIndicator" class="status-indicator status-loading">
-            正在连接游戏服务器...
-        </div>
+        <!-- 全屏按钮 -->
+        <button class="fullscreen-btn" onclick="toggleFullscreen()">全屏</button>
         
-        <div class="responsive-note">
-            💡 此页面已优化移动端体验，支持在各种设备上流畅运行
-        </div>
-        
-        <div class="footer">
-            由 Vercel 提供技术支持 | 游戏源自阿里云服务器
-        </div>
+        <!-- 游戏主框架 -->
+        <iframe 
+            id="gameFrame"
+            src="http://39.105.175.89/"
+            frameborder="0"
+            scrolling="no"
+            allowfullscreen
+            allow="autoplay; fullscreen; microphone; camera">
+        </iframe>
     </div>
 
     <script>
-        const iframe = document.getElementById('gameIframe');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const statusIndicator = document.getElementById('statusIndicator');
+        const gameFrame = document.getElementById('gameFrame');
+        const loadingMsg = document.getElementById('loadingMsg');
+        const errorMsg = document.getElementById('errorMsg');
         
-        let loadTimeout;
-        let hasLoaded = false;
+        // 游戏加载完成
+        gameFrame.onload = function() {
+            loadingMsg.classList.remove('show');
+            console.log('游戏加载完成');
+        };
         
-        // 页面加载完成后设置超时
-        window.addEventListener('load', function() {
-            // 设置30秒超时
-            loadTimeout = setTimeout(() => {
-                if (!hasLoaded) {
-                    handleLoadError();
-                }
-            }, 30000);
-        });
+        // 游戏加载失败
+        gameFrame.onerror = function() {
+            loadingMsg.classList.remove('show');
+            errorMsg.classList.add('show');
+            console.error('游戏加载失败');
+        };
         
-        // iframe加载成功
-        iframe.addEventListener('load', function() {
-            hasLoaded = true;
-            clearTimeout(loadTimeout);
-            
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-                statusIndicator.className = 'status-indicator status-success';
-                statusIndicator.textContent = '✅ 游戏加载成功！尽情享受吧！';
-            }, 1000);
-        });
+        // 超时检测
+        setTimeout(function() {
+            if (loadingMsg.classList.contains('show')) {
+                loadingMsg.classList.remove('show');
+                errorMsg.classList.add('show');
+            }
+        }, 10000); // 10秒超时
         
-        // iframe加载失败
-        iframe.addEventListener('error', function() {
-            handleLoadError();
-        });
-        
-        function handleLoadError() {
-            clearTimeout(loadTimeout);
-            loadingOverlay.innerHTML = `
-                <div style="text-align: center;">
-                    <div style="font-size: 3em; margin-bottom: 20px;">⚠️</div>
-                    <div style="font-size: 1.2em; margin-bottom: 15px;">游戏加载失败</div>
-                    <div style="font-size: 0.9em; opacity: 0.8; line-height: 1.4; max-width: 300px;">
-                        可能是网络问题或服务器繁忙<br>
-                        请稍后重试或尝试其他解决方案
-                    </div>
-                    <button onclick="reloadGame()" style="
-                        margin-top: 20px;
-                        padding: 10px 20px;
-                        background: white;
-                        border: none;
-                        border-radius: 20px;
-                        color: #4CAF50;
-                        font-weight: bold;
-                        cursor: pointer;
-                    ">🔄 重新加载</button>
-                </div>
-            `;
-            
-            statusIndicator.className = 'status-indicator status-error';
-            statusIndicator.textContent = '❌ 连接失败，请检查网络或稍后重试';
-        }
-        
+        // 重新加载游戏
         function reloadGame() {
-            hasLoaded = false;
-            loadingOverlay.classList.remove('hidden');
-            loadingOverlay.innerHTML = `
-                <div class="loading-spinner"></div>
-                <div class="loading-text">正在重新加载...</div>
-                <div class="loading-tips">
-                    重新连接游戏服务器<br>
-                    请稍候片刻
-                </div>
-            `;
-            
-            statusIndicator.className = 'status-indicator status-loading';
-            statusIndicator.textContent = '🔄 正在重新连接...';
-            
-            // 重新加载iframe
-            iframe.src = iframe.src;
-            
-            // 重新设置超时
-            clearTimeout(loadTimeout);
-            loadTimeout = setTimeout(() => {
-                if (!hasLoaded) {
-                    handleLoadError();
-                }
-            }, 30000);
+            errorMsg.classList.remove('show');
+            loadingMsg.classList.add('show');
+            gameFrame.src = gameFrame.src;
         }
         
+        // 全屏功能
         function toggleFullscreen() {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
             } else {
-                iframe.requestFullscreen().catch(err => {
-                    alert('无法进入全屏模式');
-                });
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
             }
         }
         
-        function openOriginal() {
-            window.open('http://39.105.175.89/', '_blank');
-        }
-        
-        function copyEmbedCode() {
-            const currentUrl = window.location.href;
-            const embedCode = `<iframe src="${currentUrl}" width="800" height="600" frameborder="0" allowfullscreen></iframe>`;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(embedCode).then(() => {
-                    alert('✅ 嵌入代码已复制到剪贴板！');
-                }).catch(() => {
-                    fallbackCopyTextToClipboard(embedCode);
-                });
-            } else {
-                fallbackCopyTextToClipboard(embedCode);
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
             }
-        }
-        
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                alert('✅ 嵌入代码已复制到剪贴板！');
-            } catch (err) {
-                prompt('复制以下嵌入代码:', text);
-            }
-            
-            document.body.removeChild(textArea);
-        }
-        
-        // 监听窗口大小变化
-        window.addEventListener('resize', function() {
-            // 可以在这里添加响应式调整逻辑
         });
         
-        // 预加载检查
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查网络连接
-            if (navigator.onLine) {
-                console.log('✅ 网络连接正常');
-            } else {
-                console.log('❌ 网络连接异常');
-                statusIndicator.className = 'status-indicator status-error';
-                statusIndicator.textContent = '❌ 网络连接异常，请检查网络设置';
-            }
-        });
+        // 调试信息
+        console.log('HaiSnap 植物大战僵尸代理页面');
+        console.log('原始游戏地址: http://39.105.175.89/');
+        console.log('代理部署成功！');
     </script>
 </body>
 </html> 
