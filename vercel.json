@@ -5,14 +5,35 @@
     {
       "src": "index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "game.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/proxy.js",
+      "use": "@vercel/node"
     }
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/api/proxy(.*)",
+      "destination": "/api/proxy.js"
+    },
+    {
+      "source": "/game",
+      "destination": "/game.html"
+    },
+    {
+      "source": "/",
       "destination": "/index.html"
     }
   ],
+  "functions": {
+    "api/proxy.js": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
